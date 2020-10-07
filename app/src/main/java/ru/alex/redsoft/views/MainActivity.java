@@ -134,7 +134,9 @@ public class MainActivity extends AppCompatActivity implements MainContractor.Vi
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        mPresenter.updateProduct(requestCode, Objects.requireNonNull(data)
-                .getIntExtra(COUNT_PRODUCT, 0));
+        if (resultCode == RESULT_OK) {
+            mPresenter.updateProduct(requestCode, Objects.requireNonNull(data)
+                    .getIntExtra(COUNT_PRODUCT, 0));
+        }
     }
 }

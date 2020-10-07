@@ -1,5 +1,9 @@
 package ru.alex.redsoft.presenters;
 
+import android.app.Activity;
+import android.content.Context;
+import android.view.View;
+
 import androidx.annotation.NonNull;
 
 import java.util.List;
@@ -12,12 +16,11 @@ import ru.alex.redsoft.adapters.RecyclerViewMainAdapter;
 import ru.alex.redsoft.api.ApiManager;
 import ru.alex.redsoft.contractors.MainContractor;
 import ru.alex.redsoft.models.Datum;
-import ru.alex.redsoft.models.Product;
+import ru.alex.redsoft.models.Products;
 
-public class MainPresenter implements MainContractor.Presenter, Callback<Product> {
+public class MainPresenter implements MainContractor.Presenter, Callback<Products> {
 
     private MainContractor.View mView;
-    private MainContractor.Repository mRepository;
 
     private RecyclerViewMainAdapter adapter;
     private List<Datum> datumList;
@@ -31,27 +34,42 @@ public class MainPresenter implements MainContractor.Presenter, Callback<Product
 
     @Override
     public void loadProducts() {
-        apiManager.getCityEntries(this);
+        mView.showProgressBar();
+        apiManager.getProductEntries(this);
     }
 
     @Override
-    public void onResponse(@NonNull Call<Product> call, Response<Product> response) {
-        if (response.isSuccessful()) {
-            Product product = response.body();
-            datumList = Objects.requireNonNull(product).getData();
-            RecyclerViewMainAdapter.OnProductClickListener productClickListener = new RecyclerViewMainAdapter.OnProductClickListener() {
-                @Override
-                public void onProductClick(Datum datum) {
+    public void loadProductsWithFilter(String filter) {
+        mView.showProgressBar();
+        ((Activity) mView).runOnUiThread(() -> adapter.clearList());
+        apiManager.getProductEntriesWithFilter(filter, this);
+    }
 
-                }
-            };
-            adapter = new RecyclerViewMainAdapter(datumList, productClickListener);
-            mView.setAdapter(adapter);
+    @Override
+    public void updateProduct(int position, int count) {
+        adapter.updateProduct(position, count);
+    }
+
+    @Override
+    public void onResponse(@NonNull Call<Products> call, Response<Products> response) {
+        if (response.isSuccessful()) {
+            Products products = response.body();
+            RecyclerViewMainAdapter.OnProductClickListener productClickListener = (datum, position)
+                    -> mView.openProduct(datum, position);
+            if (datumList != null) {
+                adapter.addProducts(Objects.requireNonNull(products).getData());
+            } else {
+                datumList = (Objects.requireNonNull(products).getData());
+                adapter = new RecyclerViewMainAdapter(datumList, productClickListener);
+                mView.setAdapter(adapter);
+            }
+            mView.hideProgressBar();
         }
     }
 
     @Override
-    public void onFailure(@NonNull Call<Product> call, @NonNull Throwable t) {
-
+    public void onFailure(@NonNull Call<Products> call, @NonNull Throwable t) {
+        mView.hideProgressBar();
+        mView.showError();
     }
 }

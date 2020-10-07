@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Redsoft</string>
+    <string name="pieces">шт</string>
+    <string name="error_message">Произошла ошибка при загрузке данных</string>
+    <string name="in_cart">В корзину</string>
+    <string name="i_search">Я ищу</string>
 </resources>

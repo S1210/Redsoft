@@ -1,22 +1,18 @@
-
 package ru.alex.redsoft.models;
 
-import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class Product {
-
     @SerializedName("data")
     @Expose
-    private List<Datum> data = null;
+    private Datum datum;
 
-    public List<Datum> getData() {
-        return data;
+    public Datum getDatum() {
+        return datum;
     }
 
-    public void setData(List<Datum> data) {
-        this.data = data;
+    public void setDatum(Datum datum) {
+        this.datum = datum;
     }
-
 }
